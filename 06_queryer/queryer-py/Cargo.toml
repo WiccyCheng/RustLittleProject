@@ -1,5 +1,5 @@
 [package]
-name = "queryer-py"
+name = "queryer_py"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,7 +9,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-queryer = { path = "../quyerer"}
+queryer = { path = "../queryer"}
 tokio = { version = "1", features = ["full"]}
 
 [dependencies.pyo3]

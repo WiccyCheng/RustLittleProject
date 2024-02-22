@@ -1,14 +1,23 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+use pyo3::{exceptions, prelude::*};
+
+#[pyfunction]
+pub fn example_sql() -> PyResult<String> {
+    Ok(queryer::example_sql())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+#[pyfunction]
+pub fn query(sql: &str, output: Option<&str>) -> PyResult<String> {
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    let mut data = rt.block_on(async {queryer::query(sql).await.unwrap()});
+    match output {
+        Some("csv") | None => Ok(data.to_csv().unwrap()),
+        Some(v) => Err(exceptions::PyValueError::new_err(format!("Output type {} not supported", v))),
     }
+}
+
+#[pymodule]
+fn queryer_py(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(example_sql, m)?)?;
+    m.add_function(wrap_pyfunction!(query, m)?)?;
+    Ok(())
 }
